@@ -1,0 +1,114 @@
+#!/bin/bash
+
+
+help_menu () {
+    echo "==========================================================================="
+    echo ""
+    echo -e "\tQuetzal the Ripper password cracker, version 1.0.0"
+    echo -e "\tby QuetzalCoatl, https://github.com/QuetzalCtrl/"
+    echo -e "\tcontact me : hugo.vrbs@gmail.com"
+    echo ""
+    echo "==========================================================================="
+    echo ""
+    echo "Usage: quetzal [OPTIONS]"
+    echo ""
+    echo -e "[OPTIONS]"
+    echo -e "-h=HASH, --hash=HASH\t\thashed password to crack, stdin used if HASH not specified"
+    echo -e "-h, --help \t\t\tdisplay this summary"
+    echo -e "-l, --list\t\t\tlist all the hash type NAME supported"
+    echo -e "-v, --verbose\t\t\tverbose mode, display detailled progression"
+    echo -e "-f=NAME, --format=NAME\t\tforce hash type NAME"
+    echo -e "-w=FILE, --wordlist=FILE\tread words from FILE"
+    echo -e "-o=FILE, --out=FILE\t\toutput to FILE rather than stdout"
+}
+
+function ProgressBar {
+# Process data
+    let _progress=(${1}*100/${2}*100)/100
+    let _done=(${_progress}*4)/10
+    let _left=40-$_done
+# Build progressbar string lengths
+    _fill=$(printf "%${_done}s")
+    _empty=$(printf "%${_left}s")
+printf "\r[${_fill// /#}${_empty// /-}] ${_progress}%% : ${3}          "
+
+}
+
+list_hash_types=$(openssl dgst -list | grep - | sed 's/ /\n/g' | grep - | cut -c2-)
+
+# initialisation des variables 
+verbose=0
+format=0
+wordlist=0
+hash=0
+
+
+# itérer sur tous les arguments donnés : 
+if [ -z "$1" ] || [ $1 = "-h" ] || [ $1 = "--help" ]; then
+    help_menu
+elif [ $1 = "-l" ] || [ $1 = "--list" ]; then
+    echo -e "$list_hash_types"
+else
+    for i in $@; do
+        if [ $i = "-v" ] || [ $i = "--verbose" ]; then
+            verbose=1
+        elif [[ $i = "-f="* ]] || [[ $i = "--format="* ]];then
+            if [[ $i = "-f="* ]]; then
+                f=$(echo "$i" | sed 's/-f=//g')
+            else
+                f=$(echo "$i" | sed 's/--format=//g')
+            fi
+            for l in $list_hash_types; do
+                if [ $f = $l ]; then
+                    format=$l
+                fi
+            done
+        elif [[ $i = "-w="* ]] || [[ $i = "--wordlist="* ]];then
+            if [[ $i = "-w="* ]]; then
+                w=$(echo "$i" | sed 's/-w=//g')
+            else
+                w=$(echo "$i" | sed 's/--wordlist=//g')
+            fi
+            if [ -f "$w" ]; then
+                wordlist=$w
+            fi
+        elif [[ $i = "-h="* ]] || [[ $i = "--hash="* ]];then
+            if [[ $i = "-h="* ]]; then
+                hash=$(echo "$i" | sed 's/-h=//g')
+            else
+                hash=$(echo "$i" | sed 's/--hash=//g')
+            fi
+        fi
+
+    done
+
+    # Checker si tout est valide pour commencer la recherche
+    if [ "$format" = "0" ]; then
+        echo "hash type unspecified or not valide, use -l option to see the list of all the hash types supported"
+    elif [ "$wordlist" = "0" ]; then
+        echo "wordlist unspecified or not valide, check if the pathfile is correct and if you have read permission on the file"
+    else
+        if [ "$hash" = "0" ]; then
+            hash=$(cat /dev/stdin)
+        fi
+        # Tout est ok ->
+        # hasher la wordlist et tester si le hash à cracker correspond 
+        if [ "$verbose" = "1" ]; then
+            printf "\rProcessing wordlist ..."
+            size=$(wc -l $wordlist | cut -d ' ' -f 1)
+            current=1
+        fi
+        for word in $(cat $wordlist); do
+            if [ "$verbose" = "1" ]; then
+                ProgressBar ${current} ${size} ${word}
+                current=$((current+1))
+            fi
+            test=`echo -n "$word" | openssl dgst -$format | cut -d ' ' -f 2`
+            if [ "$hash" = $test ]; then
+                echo -e "\n\nfound: $word\n"
+                exit
+            fi
+        done
+        echo -e "\nno result\n"
+    fi
+fi
