@@ -1,3 +1,4 @@
+```
 ===========================================================================
 
 	Quetzal the Ripper password cracker, version 1.0.0
@@ -16,3 +17,4 @@ Usage: quetzal [OPTIONS]
 -f=NAME, --format=NAME		force hash type NAME
 -w=FILE, --wordlist=FILE	read words from FILE
 -o=FILE, --out=FILE		output to FILE rather than stdout
+```
