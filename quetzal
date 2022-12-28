@@ -3,7 +3,12 @@
 
 help_menu () {
     echo "==========================================================================="
-    echo ""
+    echo "                 ___             _            _ ";
+    echo "                / _ \ _   _  ___| |_ ______ _| |";
+    echo "               | | | | | | |/ _ \ __|_  / _\\\`| |";
+    echo "               | |_| | |_| |  __/ |_ / / (_| | |";
+    echo "                \__\_\\\\__,_|\___|\__/___\__,_|_|";
+    echo "";
     echo -e "\tQuetzal the Ripper password cracker, version 1.0.0"
     echo -e "\tby QuetzalCoatl, https://github.com/QuetzalCtrl/"
     echo -e "\tcontact me : hugo.vrbs@gmail.com"
