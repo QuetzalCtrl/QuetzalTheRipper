@@ -51,13 +51,12 @@ To use Quetzal the Ripper, run the following command:
 ### Options
 
 ```
--h=HASH, --hash=HASH            hashed password to crack, stdin used if HASH not specified
--h, --help                      display this summary
--l, --list                      list all the hash type NAME supported
--v, --verbose                   verbose mode, display detailled progression
--f=NAME, --format=NAME          force hash type NAME
+-h, --help                      display this menu
+-l, --list                      list all the hash format NAME supported
+-h=HASH, --hash=HASH            hashed password to crack, stdin used if no HASH specified
+-f=NAME, --format=NAME          force hash format NAME
 -w=FILE, --wordlist=FILE        read words from FILE
--o=FILE, --out=FILE             output to FILE rather than stdout
+-v, --verbose                   verbose mode, display detailled progression
  ```
 
 ### Examples

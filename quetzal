@@ -18,13 +18,12 @@ help_menu () {
     echo "Usage: quetzal [OPTIONS]"
     echo ""
     echo -e "[OPTIONS]"
-    echo -e "-h=HASH, --hash=HASH\t\thashed password to crack, stdin used if HASH not specified"
-    echo -e "-h, --help \t\t\tdisplay this summary"
-    echo -e "-l, --list\t\t\tlist all the hash type NAME supported"
-    echo -e "-v, --verbose\t\t\tverbose mode, display detailled progression"
-    echo -e "-f=NAME, --format=NAME\t\tforce hash type NAME"
+    echo -e "-h, --help \t\t\tdisplay this menu"
+    echo -e "-l, --list\t\t\tlist all the hash format NAME supported"
+    echo -e "-h=HASH, --hash=HASH\t\thashed password to crack, stdin used if no HASH specified"
+    echo -e "-f=NAME, --format=NAME\t\tforce hash format NAME"
     echo -e "-w=FILE, --wordlist=FILE\tread words from FILE"
-    echo -e "-o=FILE, --out=FILE\t\toutput to FILE rather than stdout"
+    echo -e "-v, --verbose\t\t\tverbose mode, display detailled progression"
 }
 
 function ProgressBar {
@@ -88,33 +87,28 @@ else
     done
 
     # Checker si tout est valide pour commencer la recherche
-    if [ "$format" = "0" ]; then
-        echo "hash type unspecified or not valide, use -l option to see the list of all the hash types supported"
-    elif [ "$wordlist" = "0" ]; then
-        echo "wordlist unspecified or not valide, check if the pathfile is correct and if you have read permission on the file"
-    else
-        if [ "$hash" = "0" ]; then
-            hash=$(cat /dev/stdin)
-        fi
-        # Tout est ok ->
-        # hasher la wordlist et tester si le hash à cracker correspond 
-        if [ "$verbose" = "1" ]; then
-            printf "\rProcessing wordlist ..."
-            size=$(wc -l $wordlist | cut -d ' ' -f 1)
-            current=1
-        fi
-        for word in $(cat $wordlist); do
-            if [ "$verbose" = "1" ]; then
-                ProgressBar ${current} ${size} ${word@Q}
-                current=$((current+1))
-            fi
-            test=`echo -n "$word" | openssl dgst -$format | cut -d ' ' -f 2`
-            # echo $test $word
-            if [ "$hash" = $test ]; then
-                echo -e "\n\nfound: $word\n"
-                exit
-            fi
-        done
-        echo -e "\nno result\n"
+    [ "$format" = "0" ] && echo "hash type unspecified or not valide, use -l option to see the list of all the hash types supported" && exit 1
+    [ "$wordlist" = "0" ] && echo "wordlist unspecified or not valide, check if the pathfile is correct and if you have read permission on the file" && exit 1
+    [ "$hash" = "0" ] && hash=$(cat /dev/stdin)
+    # Tout est ok ->
+    # hasher la wordlist et tester si le hash à cracker correspond 
+    if [ "$verbose" = "1" ]; then
+        printf "\rProcessing wordlist ..."
+        size=$(wc -l $wordlist | cut -d ' ' -f 1)
+        current=1
     fi
+    for word in $(cat $wordlist); do
+        if [ "$verbose" = "1" ]; then
+            ProgressBar ${current} ${size} ${word@Q}
+            current=$((current+1))
+        fi
+        test=`echo -n "$word" | openssl dgst -$format | cut -d ' ' -f 2`
+        # echo $test $word
+        if [ "$hash" = $test ]; then
+            echo -e "\nfound: $word\n"
+            exit
+        fi
+    done
+    echo -e "\nno result\n"
+
 fi
