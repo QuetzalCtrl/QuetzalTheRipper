@@ -2,7 +2,7 @@
 
 Quetzal the Ripper is a home-made Password cracker in bash, created for educational purposes only. 
 ```
-===========================================================================
+==================================================================
                  ___             _            _ 
                 / _ \ _   _  ___| |_ ______ _| |
                | | | | | | |/ _ \ __|_  / _\`| |
@@ -13,7 +13,7 @@ Quetzal the Ripper is a home-made Password cracker in bash, created for educatio
         by QuetzalCoatl, https://github.com/QuetzalCtrl/
         contact me : hugo.vrbs@gmail.com
 
-===========================================================================
+==================================================================
 ```
 
 ## System Requirements
